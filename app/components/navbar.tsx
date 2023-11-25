@@ -1,5 +1,6 @@
 import { buttonVariants } from "@/components/ui/button";
 import Link from "next/link";
+import { Cart } from "./cart";
 import { Icons } from "./icons";
 import { MaxWidthWrapper } from "./max-width-wrapper";
 import { NavItems } from "./nav-items";
@@ -63,7 +64,7 @@ export function Navbar() {
 
                   {/* Study flow-root display in mdn */}
                   <div className="ml-4 flow-root lg:ml-6">
-                    {/* <Cart /> */}
+                    <Cart />
                   </div>
                 </div>
               </div>
