@@ -22,13 +22,17 @@ export default function Page() {
     resolver: zodResolver(AuthCredentialsValidator),
   })
 
-  const { data } = trpc.anyApiRoute.useQuery()
+  // request error not mutation
+  const { mutate, isLoading } = trpc.auth.createPayloadUser.useMutation({
+
+  })
 
   const onSubmit = ({
     email,
     password
   }: TAuthCredentialsValidator) => {
     // send data to the server
+    mutate({ email, password })
   }
 
   return (
@@ -73,6 +77,7 @@ export default function Page() {
                       "focus-visible:ring-red-500": errors.password,
                     })}
                     placeholder="password"
+                    type="password"
                   />
                 </div>
 
