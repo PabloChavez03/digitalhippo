@@ -1,6 +1,7 @@
 import { cn } from "@/lib/utils";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+import { Toaster } from "sonner";
 import { Navbar } from "./components/navbar";
 import { Providers } from "./components/providers";
 import "./globals.css";
@@ -30,6 +31,8 @@ export default function RootLayout({
             </div>
           </Providers>
         </main>
+
+        <Toaster position="top-center" richColors/>
       </body>
     </html>
   );
