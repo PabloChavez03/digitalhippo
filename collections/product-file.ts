@@ -29,9 +29,9 @@ const yourOwnAndPurchased: Access = async ({ req }) => {
 
   const ownProductFileIds = products.map((prod) => prod.product_files).flat()
 
-  cconst { docs: orders } = await req.payload.find({
+  const { docs: orders } = await req.payload.find({
     collection: "orders",
-    depth: 0,
+    depth: 2,
     where: {
       user: {
         equals: user.id
@@ -39,14 +39,19 @@ const yourOwnAndPurchased: Access = async ({ req }) => {
     }
   })
 
+  const purchasedProductFileIds = orders.map((order) => order.products.map((product) => {
+    if (typeof product === "string") return req.payload.logger.error(
+      "Search depth not sufficient to find purchased file IDs"
+    )
 
-  // return {
-  //   user: {
-  //     equals: {
-  //       id: user.id
-  //     }
-  //   }
-  // }
+    return typeof product.product_files === "string" ? product.product_files : product.product_files.id
+  })).filter(Boolean).flat()
+
+  return {
+    id: {
+      in: [...ownProductFileIds, ...purchasedProductFileIds]
+    }
+  }
 }
 export const ProductFiles: CollectionConfig = {
   slug: "product_files",
@@ -57,7 +62,9 @@ export const ProductFiles: CollectionConfig = {
     beforeChange: [addUser]
   },
   access: {
-    read: yourOwnAndPurchased
+    read: yourOwnAndPurchased,
+    update: ({ req }) => req.user.role === "admin",
+    delete: ({ req }) => req.user.role === "admin"
   },
   upload: {
     staticURL: "/products_files",
@@ -73,12 +80,6 @@ export const ProductFiles: CollectionConfig = {
         condition: () => false
       },
       hasMany: false,
-      required: true
-    },
-    {
-      name: "file",
-      type: "upload",
-      relationTo: "media",
       required: true
     }
   ]
