@@ -22,7 +22,7 @@ export function NavItem({
   isOpen,
   isAnyOpen,
 }: NavItemProps) {
-  const { label, value, featured } = category;
+  const { label, featured } = category;
   return (
     <div className="flex">
       <div className="relative flex items-center">
