@@ -1,7 +1,14 @@
-import { CollectionConfig } from "payload/types";
+import { Access, CollectionConfig } from "payload/types";
 
-// definir quien puede leer, crear y actualizar ordenes
-// const yourOwn: Access
+const yourOwn: Access = ({ req: { user } }) => {
+  if (user.role === "admin") return true;
+
+  return {
+    user: {
+      equals: user.id,
+    },
+  };
+};
 
 export const Orders: CollectionConfig = {
   slug: "orders",
@@ -9,10 +16,11 @@ export const Orders: CollectionConfig = {
     useAsTitle: "Your Orders",
     description: "A summary of all your orders on DigitalHippo.",
   },
-  // access: {
-
-  //   read: yourOwn,
-  // },
+  access: {
+    read: yourOwn,
+    update: ({req: { user }}) => user.role === "admin",
+    create: ({req: { user }}) => user.role === "admin",
+  },
   fields: [
     {
       name: "_isPaid",
@@ -41,7 +49,7 @@ export const Orders: CollectionConfig = {
       type: "relationship",
       relationTo: "products",
       required: true,
-      hasMany: true
-    }
+      hasMany: true,
+    },
   ],
 };
