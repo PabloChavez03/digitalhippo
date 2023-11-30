@@ -8,7 +8,10 @@ import { cn } from "@/lib/utils";
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 
-import { AuthCredentialsValidator, TAuthCredentialsValidator } from "@/lib/validators/account-credentials-validator";
+import {
+  AuthCredentialsValidator,
+  TAuthCredentialsValidator,
+} from "@/lib/validators/account-credentials-validator";
 import { trpc } from "@/trpc/client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
@@ -17,46 +20,45 @@ import { toast } from "sonner";
 import { ZodError } from "zod";
 
 export default function Page() {
-
-
-  const { register, handleSubmit, formState: {
-    errors
-  } } = useForm<TAuthCredentialsValidator>({
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<TAuthCredentialsValidator>({
     resolver: zodResolver(AuthCredentialsValidator),
-  })
+  });
 
-  const router = useRouter()
+  const router = useRouter();
 
   const { mutate, isLoading } = trpc.auth.createPayloadUser.useMutation({
     onError: (err) => {
       if (err.data?.code === "CONFLICT") {
-        toast.error("This email is already in use. Sign in instead?")
+        toast.error("This email is already in use. Sign in instead?");
 
-        return
+        return;
       }
 
       if (err instanceof ZodError) {
-        toast.error(err.issues[0].message)
+        toast.error(err.issues[0].message);
 
-        return
+        return;
       }
 
-      toast.error("Something went wrong. Please try again")
+      toast.error("Something went wrong. Please try again");
     },
     onSuccess: ({ sentToEmail }) => {
-      toast.success(`Verification email sent to ${sentToEmail}. Please verify your account`)
+      toast.success(
+        `Verification email sent to ${sentToEmail}. Please verify your account`
+      );
 
-      router.push("/verify-email?to=" + sentToEmail)
-    }
-  })
+      router.push("/verify-email?to=" + sentToEmail);
+    },
+  });
 
-  const onSubmit = ({
-    email,
-    password
-  }: TAuthCredentialsValidator) => {
+  const onSubmit = ({ email, password }: TAuthCredentialsValidator) => {
     // send data to the server
-    mutate({ email, password })
-  }
+    mutate({ email, password });
+  };
 
   return (
     <>
@@ -84,12 +86,18 @@ export default function Page() {
                 <div className="grid gap-1 py-2">
                   <Label htmlFor="email">Email</Label>
                   <Input
-                  {...register("email")}
+                    {...register("email")}
                     className={cn({
                       "focus-visible:ring-red-500": errors.email,
                     })}
                     placeholder="your@example.com"
                   />
+
+                  {errors?.email && (
+                    <p className="text-sm text-red-500">
+                      {errors.email.message}
+                    </p>
+                  )}
                 </div>
 
                 <div className="grid gap-1 py-2">
@@ -102,6 +110,11 @@ export default function Page() {
                     placeholder="password"
                     type="password"
                   />
+                  {errors?.password && (
+                    <p className="text-sm text-red-500">
+                      {errors.password.message}
+                    </p>
+                  )}
                 </div>
 
                 <Button>Sign up</Button>
